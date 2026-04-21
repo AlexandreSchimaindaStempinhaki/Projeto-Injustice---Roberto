@@ -46,3 +46,27 @@ extension RarityUI on CharacterRarity {
     }
   }
 }
+
+extension AlignmentUI on CharacterAlignment {
+  Color get color {
+    switch (this) {
+      case CharacterAlignment.heroi:
+        return Colors.blueAccent;
+      case CharacterAlignment.vilao:
+        return Colors.redAccent;
+      case CharacterAlignment.antiHeroi:
+        return Colors.orangeAccent;
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case CharacterAlignment.heroi:
+        return Icons.shield;
+      case CharacterAlignment.vilao:
+        return Icons.warning;
+      case CharacterAlignment.antiHeroi:
+        return Icons.balance;
+    }
+  }
+}

@@ -1,36 +1,23 @@
 import 'package:flutter/material.dart';
-import '../../../../../helper_dev/fakes/character_factory.dart';
-import '../../../../controllers/characters_view_model.dart';
 import 'package:signals_flutter/signals_flutter.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../../core/routes/app_routes.dart';
 
-class CharactersFab extends StatelessWidget {
-  final CharactersViewModel viewModel;
+class CreateCharactersButton extends StatelessWidget {
 
-  const CharactersFab({super.key, required this.viewModel});
+  const CreateCharactersButton({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Watch((context) {
-      final isExecuting =
-          viewModel.commands.createCharacterCommand.isExecuting.value;
-
       return FloatingActionButton(
-        onPressed: isExecuting
-            ? null
-            : () async {
-                final character = CharacterFactory.list(1).first;
-                await viewModel.commands.addCharacter(character);
-              },
-        child: isExecuting
-            ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: Colors.white,
-                ),
-              )
-            : const Icon(Icons.add),
+        onPressed: () => context.goNamed(AppRouteNames.charactersCreate),
+        child: const SizedBox(
+          width: 22,
+          height: 22,
+          child: Icon(Icons.add),
+          // child: Icons.add,
+        ),
       );
     });
   }

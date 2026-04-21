@@ -52,26 +52,6 @@ class _AccountCreateViewState extends State<AccountCreateView> {
     super.initState();
     _formFields = AccountFormFieldsController();
 
-    // _emailField = (
-    //   key: GlobalKey<FormFieldState>(),
-    //   focus: FocusNode(),
-    //   controller: TextEditingController(),
-    // );
-
-    // _nomeField = (
-    //   key: GlobalKey<FormFieldState>(),
-    //   focus: FocusNode(),
-    //   controller: TextEditingController(),
-    // );
-
-    // _displayNameField = (
-    //   key: GlobalKey<FormFieldState>(),
-    //   focus: FocusNode(),
-    //   controller: TextEditingController(),
-    // );
-
-    // _fields = [_emailField, _nomeField, _displayNameField];
-
     _vmAccount = injector.get<AccountViewModel>();
     _vmAccount.accountState.clearMessage();
     _vmAccount.accountState.clearSuccessEvent();
@@ -289,12 +269,6 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                   color: Theme.of(context).colorScheme.onSecondary,
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                // Text(
-                //   'Criar Nova Conta',
-                //   style: context.textStyles.headlineMedium?.bold,
-                //   textAlign: TextAlign.center,
-                // ),
-                // const SizedBox(height: AppSpacing.md),
                 Text(
                   'Preencha os dados abaixo para criar sua conta',
                   style: context.textStyles.bodyMedium?.withColor(

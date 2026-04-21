@@ -40,16 +40,16 @@ class _CharactersViewState extends State<CharactersView> {
 
   @override
   void didChangeDependencies() {
-    super.didChangeDependencies();  
+    super.didChangeDependencies();
     // _viewModel.refresh();
   }
 
   void _deleteCharacter(Character character) {
-     _viewModel.commands.deleteCharacter(character);
+    _viewModel.commands.deleteCharacter(character);
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('${character.name} removido')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('${character.name} removido')));
   }
 
   @override
@@ -57,8 +57,12 @@ class _CharactersViewState extends State<CharactersView> {
     return Scaffold(
       appBar: CharactersAppBar(state: _viewModel.charactersState),
       drawer: AppDrawer(),
-      body: CharactersBody(account: account, viewModel: _viewModel, onDelete: _deleteCharacter),
-      floatingActionButton: CharactersFab(viewModel: _viewModel),
+      body: CharactersBody(
+        account: account,
+        viewModel: _viewModel,
+        onDelete: _deleteCharacter,
+      ),
+      floatingActionButton: CreateCharactersButton(),
     );
   }
 }
