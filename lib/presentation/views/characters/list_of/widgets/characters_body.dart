@@ -75,46 +75,6 @@ class CharactersBody extends StatelessWidget {
     });
   }
 }
-
-// class EmptyState extends StatelessWidget {
-//   const EmptyState({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Center(
-//       child: Padding(
-//         padding: const EdgeInsets.symmetric(
-//           horizontal: AppSpacing.xxl,
-//           vertical: AppSpacing.xxl,
-//         ),
-//         child: Column(
-//           // mainAxisSize: MainAxisSize.max,
-//           // mainAxisAlignment: MainAxisAlignment.start,
-//           children: [
-//             Icon(
-//               Icons.people_outline,
-//               size: 72,
-//               color: Theme.of(context).colorScheme.outline,
-//             ),
-//             const SizedBox(height: AppSpacing.md),
-//             Text(
-//               'Nenhum personagem encontrado',
-//               textAlign: TextAlign.center,
-//               style: context.textStyles.titleMedium?.semiBold,
-//             ),
-//             const SizedBox(height: AppSpacing.sm),
-//             Text(
-//               'Adicione seu primeiro personagem usando o botão +',
-//               textAlign: TextAlign.center,
-//               style: context.textStyles.bodyMedium?.withColor(
-//                 Theme.of(context).colorScheme.onSurfaceVariant,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
 // }
 
 /// Item da lista de personagens
@@ -167,10 +127,16 @@ class CharacterListItem extends StatelessWidget {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                       child: const Text('Cancelar'),
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context, true),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Theme.of(context).colorScheme.error,
+                      ),
                       child: const Text('Excluir'),
                     ),
                   ],
