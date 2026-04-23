@@ -119,10 +119,10 @@ class CharactersCommandsViewModel {
   }
 
   /// adiciona personagem e atualiza o estado
-  Future<void> addCharacter(Character character) async {
-    state.clearMessage(); // Limpa mensagens anteriores
-    await _createCharacterCommand.executeWith((character: character));
-  }
+    Future<void> addCharacter(Character character) async {
+      state.clearMessage(); // Limpa mensagens anteriores
+      await _createCharacterCommand.executeWith((character: character));
+    }
 
   // deleta personagem e atualiza o estado
   Future<void> deleteCharacter(Character character) async {

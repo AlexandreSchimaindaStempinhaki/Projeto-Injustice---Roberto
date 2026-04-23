@@ -11,7 +11,7 @@ class CreateCharactersButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Watch((context) {
       return FloatingActionButton(
-        onPressed: () => context.goNamed(AppRouteNames.charactersCreate),
+        onPressed: () => context.pushNamed(AppRouteNames.charactersCreate),
         child: const SizedBox(
           width: 22,
           height: 22,

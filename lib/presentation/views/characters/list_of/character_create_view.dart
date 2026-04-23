@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:injustice_app/core/routes/app_routes.dart';
 import 'package:injustice_app/core/theme/app_theme.dart';
+import 'package:injustice_app/core/validators/max_lenght_str_validator%20copy.dart';
+import 'package:injustice_app/core/validators/min_lenght_str_validator.dart';
 import 'package:injustice_app/presentation/controllers/characters_view_model.dart';
 import 'package:injustice_app/presentation/views/characters/list_of/widgets/character_star_selector.dart';
 import 'package:injustice_app/presentation/widgets/app_drawer.dart';
-import 'package:signals_flutter/signals_flutter.dart';
-import '../../../../../core/typedefs/types_defs.dart';
-import '../../../../../core/validators/email_str_validator.dart';
 import '../../../../../core/validators/empty_str_validator.dart';
-import '../../../../core/di/dependency_injection.dart';
 import '../../account_create_view.dart';
 import '../../../widgets/input_text_field.dart';
 import '../../../functions/ui_functions.dart';
@@ -15,6 +15,8 @@ import '../../../widgets/account_attribute_card.dart';
 import 'widgets/character_select.dart';
 import '../../../../domain/models/character_entity.dart';
 import '../../../../../domain/models/extensions/character_ui.dart';
+import '../../../../core/di/dependency_injection.dart';
+import '../../../../domain/models/account_entity.dart';
 
 class CharacterCreateView extends StatefulWidget {
   const CharacterCreateView({super.key});
@@ -24,18 +26,17 @@ class CharacterCreateView extends StatefulWidget {
 }
 
 class _CharacterCreateViewState extends State<CharacterCreateView> {
-  late final CharactersViewModel _vmCharacter;
-
   final _formKey = GlobalKey<FormState>();
   final ScrollController _scrollController = ScrollController();
+  late final CharactersViewModel _vmCharacter;
 
   late final AccountFormFieldsController _formFields;
 
-  DateTime _createdAt = DateTime.now();
+  final _createdAt = DateTime.now();
   int _level = 1;
-  int _attack = 1;
-  int _health = 1;
-  int _threat = 1;
+  int _attack = 0;
+  int _health = 0;
+  int _threat = 0;
   int _stars = 1;
   CharacterClass selectedClass = CharacterClass.poderoso;
   CharacterRarity selectedRarity = CharacterRarity.prata;
@@ -45,6 +46,89 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
   void initState() {
     super.initState();
     _formFields = AccountFormFieldsController();
+
+    _vmCharacter = injector.get<CharactersViewModel>();
+  }
+
+  void _cleanFields() {
+    _formKey.currentState?.reset();
+    _formFields.clear();
+
+    _level = 1;
+    _attack = 0;
+    _health = 0;
+    _threat = 0;
+    _stars = 1;
+    selectedClass = CharacterClass.poderoso;
+    selectedRarity = CharacterRarity.prata;
+    selectedAlignment = CharacterAlignment.heroi;
+
+    setState(() {});
+  }
+
+  void _resetFormView() {
+    // Remove foco de qualquer TextField
+    FocusScope.of(context).unfocus();
+
+    // Rola para o topo
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+
+    _cleanFields();
+  }
+
+  void _focusFirstError() {
+    for (final field in _formFields.fields) {
+      final state = field.key.currentState;
+
+      if (state != null && !state.isValid) {
+        field.focus.requestFocus();
+
+        Scrollable.ensureVisible(
+          field.key.currentContext!,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+
+        break;
+      }
+    }
+  }
+
+  bool _validateForm() {
+    final valid = _formKey.currentState!.validate();
+
+    if (!valid) {
+      _focusFirstError();
+    }
+
+    return valid;
+  }
+
+  void _saveCharacter() {
+    if (!_validateForm()) return;
+
+    Character newCharacter = Character(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: _formFields.name.controller.text.trim(),
+      createdAt: _createdAt,
+      level: _level,
+      attack: _attack,
+      health: _health,
+      threat: _threat,
+      stars: _stars,
+      characterClass: selectedClass,
+      rarity: selectedRarity,
+      alignment: selectedAlignment,
+      updatedAt: _createdAt,
+    );
+
+    _vmCharacter.commands.addCharacter(newCharacter);
+
+    _resetFormView();
   }
 
   @override
@@ -83,8 +167,11 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
                   prefixIcon: Icons.account_circle,
                   label: 'Nome',
                   hint: 'Digite o nome do seu personagem',
-                  validator: (value) =>
-                      validateField(value, [EmptyStrValidator()]),
+                  validator: (value) => validateField(value, [
+                    EmptyStrValidator(),
+                    MinLengthStrValidator(minLength: 3),
+                    MaxLengthStrValidator(maxLength: 20),
+                  ]),
                 ),
                 const SizedBox(height: AppSpacing.md),
 
@@ -104,8 +191,8 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
                   icon: Icons.local_fire_department,
                   iconColor: Theme.of(context).colorScheme.primary,
                   label: 'Ataque',
-                  hint: '[1, 100]',
-                  minValue: 1,
+                  hint: '[0, 100]',
+                  minValue: 0,
                   maxValue: 100,
                   value: _attack,
                   onChanged: (value) => setState(() => _attack = value),
@@ -116,8 +203,8 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
                   icon: Icons.favorite,
                   iconColor: Theme.of(context).colorScheme.primary,
                   label: 'Vida',
-                  hint: '[1, 100]',
-                  minValue: 1,
+                  hint: '[0, 100]',
+                  minValue: 0,
                   maxValue: 100,
                   value: _health,
                   onChanged: (value) => setState(() => _health = value),
@@ -128,8 +215,8 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
                   icon: Icons.dangerous,
                   iconColor: Theme.of(context).colorScheme.primary,
                   label: 'Ameaça',
-                  hint: '[1, 100]',
-                  minValue: 1,
+                  hint: '[0, 100]',
+                  minValue: 0,
                   maxValue: 100,
                   value: _threat,
                   onChanged: (value) => setState(() => _threat = value),
@@ -172,41 +259,34 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
                 ),
                 const SizedBox(height: AppSpacing.sm),
 
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    /// BOTÃO SALVAR / EDITAR
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: AppSpacing.md,
-                          ),
-                        ),
-                        child: Text(
-                          'SALVAR',
-                          style: context.textStyles.titleMedium?.bold,
+                    ElevatedButton(
+                      onPressed: _saveCharacter,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.md,
                         ),
                       ),
+                      child: Text(
+                        'CRIAR',
+                        style: context.textStyles.titleMedium?.bold,
+                      ),
                     ),
-                    const SizedBox(width: AppSpacing.md),
 
-                    /// BOTÃO EXCLUIR
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: AppSpacing.md,
-                          ),
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.tertiary,
+                    const SizedBox(height: AppSpacing.md),
+
+                    OutlinedButton(
+                      onPressed: () => context.pop(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.md,
                         ),
-                        child: Text(
-                          'EXCLUIR',
-                          style: context.textStyles.titleMedium?.bold,
-                        ),
+                      ),
+                      child: Text(
+                        'VOLTAR',
+                        style: context.textStyles.titleMedium?.bold,
                       ),
                     ),
                   ],

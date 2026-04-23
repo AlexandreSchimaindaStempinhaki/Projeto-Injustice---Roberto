@@ -124,10 +124,6 @@ class _AccountCreateViewState extends State<AccountCreateView> {
     _scrollController.dispose();
 
     _formFields.dispose();
-    // for (final field in _fields) {
-    //   field.focus.dispose();
-    //   field.controller.dispose();
-    // }
     super.dispose();
   }
 
