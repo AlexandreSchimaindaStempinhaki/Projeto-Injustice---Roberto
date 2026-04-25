@@ -45,6 +45,7 @@ void setupDependencyInjection() {
   injector.addSingleton<ICharacterFacadeUseCases>(CharacterFacadeUseCasesImpl.new);
   injector.addSingleton<IGetAllCharactersUseCase>(GetAllCharactersUseCaseImpl.new);
   injector.addSingleton<IGetCharacterByIdUseCase>(GetCharacterByIdUseCaseImpl.new);
+  injector.addSingleton<IUpdateCharacterUseCase>(UpdateCharacterUseCaseImpl.new);
   injector.addSingleton<ISaveCharacterUseCase>(SaveCharacterUseCaseImpl.new);
   injector.addSingleton<IDeleteCharacterUseCase>(DeleteCharacterUseCaseImpl.new);
   

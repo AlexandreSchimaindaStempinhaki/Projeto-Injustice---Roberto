@@ -26,9 +26,10 @@ final class CharacterSharedPreferencesService
             if(indexDeletedCharacter == -1) {
               return Error(ApiLocalFailure('Shared Preferences: Personagem não encontrado, id: $id'));
             }
+            
             final characterDeleted = characters[indexDeletedCharacter];
 
-            final updatedList = List<Character>.from(characters)..removeAt(indexDeletedCharacter);
+            final updatedList = characters.where((c) => c.id != id).toList();
             await _saveCharacters(updatedList);
 
             return Success(characterDeleted);
@@ -77,6 +78,39 @@ final class CharacterSharedPreferencesService
   Future<CharacterResult> getCharacterById(String id) {
     // TODO: implement getCharacterById
     throw UnimplementedError();
+  }
+
+  @override
+  Future<CharacterResult> updateCharacter(Character character) async {
+    try{
+      final result = await getAllCharacters();
+
+      return await result.fold(
+        onSuccess: (characters) async {
+          final indexEditedCharacter = characters.indexWhere((c) => c.id == character.id);
+
+          if(indexEditedCharacter == -1){
+            return Error(ApiLocalFailure('Shared Preferences: Personagem não encontrado, id: ${character.id}') );
+          }
+
+          final updatedList = characters.map((c) => c.id == character.id ? character : c).toList();
+          await _saveCharacters(updatedList);
+
+          return Success(character);
+        }, 
+        
+        onFailure: (failure) async {
+          if(failure  is EmptyResultFailure){
+            return Error(ApiLocalFailure('Shared Preferences: Nenhum personagem para editar'));
+          }
+          return Error(failure);
+        },
+      );
+    } catch(e) {
+      return Error(
+        ApiLocalFailure('Shared Preferences: Erro ao atualizar personagem: $e'),
+      );
+    }
   }
 
   @override

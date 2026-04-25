@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../domain/models/account_entity.dart';
 import '../../../../../domain/models/character_entity.dart';
@@ -10,6 +11,7 @@ import '../../../../widgets/empty_state.dart';
 import '../../../../widgets/loading_indicator.dart';
 import '../../../../widgets/star_rating.dart';
 import 'package:signals_flutter/signals_flutter.dart';
+import '../../../../../core/routes/app_routes.dart';
 
 class CharactersBody extends StatelessWidget {
   final CharactersViewModel viewModel;
@@ -66,7 +68,10 @@ class CharactersBody extends StatelessWidget {
                     return CharacterListItem(
                       character: character,
                       onDelete: () => onDelete(character),
-                      onTap: () {},
+                      onTap: () {
+                        viewModel.charactersState.characterSelected.value = character;
+                        context.pushNamed(AppRouteNames.charactersCreate);
+                      },
                     );
                   }, childCount: characters.length),
                 ),

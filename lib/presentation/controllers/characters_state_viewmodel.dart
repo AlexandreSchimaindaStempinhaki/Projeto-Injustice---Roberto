@@ -1,3 +1,5 @@
+import 'package:injustice_app/presentation/views/characters/list_of/widgets/character_select.dart';
+
 import '../../domain/models/character_entity.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -64,6 +66,9 @@ class CharactersStateViewmodel {
   /// Estado da Lista de Personagens, inicializada como nula
   final state = Signal<List<Character>>([]);
 
+  // Personagem selecionado para edição ou outras features futuras
+  final characterSelected = signal<Character?>(null);
+
   /// Mensagem de erro ou aviso, inicializada como nula
   final message = signal<String?>(null);
 
@@ -76,6 +81,11 @@ class CharactersStateViewmodel {
   /// Ordenação
   final sortBy = signal<SortBy>(SortBy.name);
   final sortOrder = signal<SortOrder>(SortOrder.ascending);
+
+  // Estado semântico - Definindo o texto do label
+  late final hasCharacter = computed(() => characterSelected.value != null);
+
+  late final labelEditMode = computed(() => hasCharacter.value ? 'EDITAR' : 'CRIAR');
 
   /// Filtros
   final selectedRarities = signal<Set<CharacterRarity>>({});
@@ -298,4 +308,6 @@ class CharactersStateViewmodel {
   }
 
   void clearSuccessEvent () => successEvent.value = null;
+
+  void clearSelectionCharacter () => characterSelected.value = null;
 }

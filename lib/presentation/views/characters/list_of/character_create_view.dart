@@ -33,21 +33,22 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
 
   late final CharactersViewModel _vmCharacter;
 
+  late final void Function() _disposeCharacterEffect;
   late final void Function() _disposeSuccessEffect;
   late final void Function() _disposeErrorEffect;
 
   late final AccountFormFieldsController _formFields;
   final ScrollController _scrollController = ScrollController();
 
-  final _createdAt = DateTime.now();
+  var _createdAt = DateTime.now();
   int _level = 1;
   int _attack = 0;
   int _health = 0;
   int _threat = 0;
   int _stars = 1;
-  CharacterClass selectedClass = CharacterClass.poderoso;
-  CharacterRarity selectedRarity = CharacterRarity.prata;
-  CharacterAlignment selectedAlignment = CharacterAlignment.heroi;
+  CharacterClass _selectedClass = CharacterClass.poderoso;
+  CharacterRarity _selectedRarity = CharacterRarity.prata;
+  CharacterAlignment _selectedAlignment = CharacterAlignment.heroi;
 
   @override
   void initState() {
@@ -57,6 +58,16 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
     _vmCharacter = injector.get<CharactersViewModel>();
     _vmCharacter.charactersState.clearMessage();
     _vmCharacter.charactersState.clearSuccessEvent();
+
+    _disposeCharacterEffect = effect(() {
+      final character = _vmCharacter.charactersState.characterSelected.value;
+
+      if (character != null) {
+        _fillFields(character);
+      } else {
+        _cleanFields();
+      }
+    });
 
     _disposeErrorEffect = effect(() {
       final errorMessage = _vmCharacter.charactersState.message.value;
@@ -71,7 +82,7 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
         });
       }
     });
-    
+
     _disposeSuccessEffect = effect(() {
       final event = _vmCharacter.charactersState.successEvent.value;
 
@@ -90,9 +101,12 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
             case CharacterSuccessEvent.updated:
               message = 'Personagem atualizado com sucesso!';
               color = Colors.green;
+              _finishOperation();
           }
 
           showSnackBar(context, message, backgroundColor: color);
+
+          _resetFormView();
 
           _vmCharacter.charactersState.clearSuccessEvent();
         });
@@ -102,7 +116,7 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
 
   @override
   void dispose() {
-    // _disposeAccountEffect();
+    _disposeCharacterEffect();
     _disposeSuccessEffect();
     _disposeErrorEffect();
 
@@ -110,6 +124,22 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
 
     _formFields.dispose();
     super.dispose();
+  }
+
+  void _fillFields(Character character) {
+    _formFields.name.controller.text = character.name;
+
+    _createdAt = character.createdAt;
+    _level = character.level;
+    _attack = character.attack;
+    _health = character.health;
+    _threat = character.threat;
+    _stars = character.stars;
+    _selectedClass = character.characterClass;
+    _selectedRarity = character.rarity;
+    _selectedAlignment = character.alignment;
+
+    setState(() {});
   }
 
   void _cleanFields() {
@@ -121,9 +151,9 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
     _health = 0;
     _threat = 0;
     _stars = 1;
-    selectedClass = CharacterClass.poderoso;
-    selectedRarity = CharacterRarity.prata;
-    selectedAlignment = CharacterAlignment.heroi;
+    _selectedClass = CharacterClass.poderoso;
+    _selectedRarity = CharacterRarity.prata;
+    _selectedAlignment = CharacterAlignment.heroi;
 
     setState(() {});
   }
@@ -173,8 +203,13 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
   void _saveCharacter() {
     if (!_validateForm()) return;
 
+    final characterSelected =
+        _vmCharacter.charactersState.characterSelected.value;
+
     Character newCharacter = Character(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: characterSelected != null
+          ? characterSelected.id
+          : DateTime.now().millisecondsSinceEpoch.toString(),
       name: _formFields.name.controller.text.trim(),
       createdAt: _createdAt,
       level: _level,
@@ -182,15 +217,22 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
       health: _health,
       threat: _threat,
       stars: _stars,
-      characterClass: selectedClass,
-      rarity: selectedRarity,
-      alignment: selectedAlignment,
-      updatedAt: _createdAt,
+      characterClass: _selectedClass,
+      rarity: _selectedRarity,
+      alignment: _selectedAlignment,
+      updatedAt: characterSelected != null ? DateTime.now() : _createdAt,
     );
 
-    _vmCharacter.commands.addCharacter(newCharacter);
+    if (_vmCharacter.charactersState.characterSelected.value == null) {
+      _vmCharacter.commands.addCharacter(newCharacter);
+    } else {
+      _vmCharacter.commands.updateCharacter(newCharacter);
+    }
+  }
 
-    _resetFormView();
+  void _finishOperation() {
+    _vmCharacter.charactersState.characterSelected.value = null;
+    context.pop();
   }
 
   @override
@@ -288,8 +330,8 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
                 CharacterSelect<CharacterClass>(
                   title: 'Classe',
                   items: CharacterClass.values,
-                  value: selectedClass,
-                  onChanged: (v) => setState(() => selectedClass = v),
+                  value: _selectedClass,
+                  onChanged: (v) => setState(() => _selectedClass = v),
                   labelBuilder: (c) => c.displayName,
                   colorBuilder: (c) => c.color,
                 ),
@@ -298,8 +340,8 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
                 CharacterSelect<CharacterRarity>(
                   title: 'Raridade',
                   items: CharacterRarity.values,
-                  value: selectedRarity,
-                  onChanged: (v) => setState(() => selectedRarity = v),
+                  value: _selectedRarity,
+                  onChanged: (v) => setState(() => _selectedRarity = v),
                   labelBuilder: (r) => r.displayName,
                   colorBuilder: (r) => r.color,
                 ),
@@ -308,8 +350,8 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
                 CharacterSelect<CharacterAlignment>(
                   title: 'Caráter',
                   items: CharacterAlignment.values,
-                  value: selectedAlignment,
-                  onChanged: (v) => setState(() => selectedAlignment = v),
+                  value: _selectedAlignment,
+                  onChanged: (v) => setState(() => _selectedAlignment = v),
                   labelBuilder: (a) => a.displayName,
                   colorBuilder: (a) => a.color,
                 ),
@@ -324,23 +366,51 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    ElevatedButton(
-                      onPressed: _saveCharacter,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: AppSpacing.md,
+                    Watch((context) {
+                      final isEditing =
+                          _vmCharacter.charactersState.characterSelected.value;
+
+                      final isRunning =
+                          _vmCharacter
+                              .commands
+                              .createCharacterCommand
+                              .isExecuting
+                              .value ||
+                          _vmCharacter
+                              .commands
+                              .updateCharacterCommand
+                              .isExecuting
+                              .value;
+                      return ElevatedButton(
+                        onPressed: isRunning ? null : _saveCharacter,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpacing.md,
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        'CRIAR',
-                        style: context.textStyles.titleMedium?.bold,
-                      ),
-                    ),
+
+                        child: isRunning
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                _vmCharacter.charactersState.labelEditMode.value,
+                                style: context.textStyles.titleMedium?.bold,
+                              ),
+                      );
+                    }),
 
                     const SizedBox(height: AppSpacing.md),
 
                     OutlinedButton(
-                      onPressed: () => context.pop(),
+                      onPressed: () => _finishOperation(),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                           vertical: AppSpacing.md,

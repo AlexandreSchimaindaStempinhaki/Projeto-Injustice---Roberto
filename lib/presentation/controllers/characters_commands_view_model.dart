@@ -10,19 +10,23 @@ class CharactersCommandsViewModel {
   final GetAllCharactersCommand _getAccountCommand;
   final CreateCharacterCommand _createCharacterCommand;
   final DeleteCharacterCommand _deleteCharacterCommand;
+  final UpdateCharacterCommand _updateCharacterCommand;
 
   CharactersCommandsViewModel({
     required this.state,
     required GetAllCharactersCommand getAccountCommand,
     required CreateCharacterCommand createCharacterCommand,
     required DeleteCharacterCommand deleteCharacterCommand,
+    required UpdateCharacterCommand updateCharacterCommand,
   }) : _getAccountCommand = getAccountCommand,
        _createCharacterCommand = createCharacterCommand,
-       _deleteCharacterCommand = deleteCharacterCommand {
+       _deleteCharacterCommand = deleteCharacterCommand,
+       _updateCharacterCommand = updateCharacterCommand {
     // Observers para cada comando
     _observeGetAllCharacters();
     _observeCreateCharacter();
     _observeDeleteCharacter();
+    _observeUpdateCharacter();
   }
 
   // ========================================================
@@ -31,6 +35,7 @@ class CharactersCommandsViewModel {
   GetAllCharactersCommand get getAllCharactersCommand => _getAccountCommand;
   CreateCharacterCommand get createCharacterCommand => _createCharacterCommand;
   DeleteCharacterCommand get deleteCharacterCommand => _deleteCharacterCommand;
+  UpdateCharacterCommand get updateCharacterCommand => _updateCharacterCommand;
 
   // ========================================================
   //   MÉTODO GENÉRICO DE OBSERVAÇÃO DE COMANDOS
@@ -109,6 +114,22 @@ class CharactersCommandsViewModel {
     );
   }
 
+  void _observeUpdateCharacter(){
+    _observeCommand<Character>(
+      _updateCharacterCommand,
+      onSuccess: (editedCharacter) {
+        state.successEvent.value = CharacterSuccessEvent.updated;
+        state.clearMessage();
+        final currentList = state.state.value;
+        final newList = currentList.map((c) => c.id == editedCharacter.id ? editedCharacter : c).toList();
+        state.state.value = newList;
+      },
+      onFailure: (err) {
+        state.setMessage(err.msg);
+      }
+    );
+  }
+
   // ========================================================
   //   MÉTODOS PÚBLICOS (CHAMADOS PELOS WIDGETS)
   //   que disparam os commands
@@ -130,5 +151,10 @@ class CharactersCommandsViewModel {
   Future<void> deleteCharacter(Character character) async {
     state.clearMessage();
     await _deleteCharacterCommand.executeWith((id: character.id));
+  }
+
+  Future<void> updateCharacter(Character character) async {
+    state.clearMessage();
+    await _updateCharacterCommand.executeWith((character: character));
   }
 }
