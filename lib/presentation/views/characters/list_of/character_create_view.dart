@@ -238,7 +238,7 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Adicionar Personagem')),
+      appBar: AppBar(title: Text(_vmCharacter.charactersState.pageTitle.value)),
       drawer: AppDrawer(),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),

@@ -85,7 +85,9 @@ class CharactersStateViewmodel {
   // Estado semântico - Definindo o texto do label
   late final hasCharacter = computed(() => characterSelected.value != null);
 
+  late final pageTitle = computed(() => hasCharacter.value ? 'Editar Personagem' : 'Criar Personagem');
   late final labelEditMode = computed(() => hasCharacter.value ? 'EDITAR' : 'CRIAR');
+  
 
   /// Filtros
   final selectedRarities = signal<Set<CharacterRarity>>({});
