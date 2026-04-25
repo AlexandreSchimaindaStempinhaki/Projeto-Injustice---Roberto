@@ -88,6 +88,8 @@ class CharactersCommandsViewModel {
         final currentList = state.state.value;
         final newlist = [...currentList, newCharacter]; // Adiciona o novo personagem à lista
         state.state.value = newlist; 
+        state.successEvent.value = CharacterSuccessEvent.created;
+        state.clearMessage();
       },
       onFailure: (err) =>
           state.setMessage(err.msg), // registra o erro no estado

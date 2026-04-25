@@ -17,6 +17,9 @@ import '../../../../domain/models/character_entity.dart';
 import '../../../../../domain/models/extensions/character_ui.dart';
 import '../../../../core/di/dependency_injection.dart';
 import '../../../../domain/models/account_entity.dart';
+import 'package:signals_flutter/signals_flutter.dart';
+import '../../../controllers/characters_state_viewmodel.dart';
+import '../../../../core/typedefs/types_defs.dart';
 
 class CharacterCreateView extends StatefulWidget {
   const CharacterCreateView({super.key});
@@ -27,10 +30,14 @@ class CharacterCreateView extends StatefulWidget {
 
 class _CharacterCreateViewState extends State<CharacterCreateView> {
   final _formKey = GlobalKey<FormState>();
-  final ScrollController _scrollController = ScrollController();
+
   late final CharactersViewModel _vmCharacter;
 
+  late final void Function() _disposeSuccessEffect;
+  late final void Function() _disposeErrorEffect;
+
   late final AccountFormFieldsController _formFields;
+  final ScrollController _scrollController = ScrollController();
 
   final _createdAt = DateTime.now();
   int _level = 1;
@@ -48,6 +55,61 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
     _formFields = AccountFormFieldsController();
 
     _vmCharacter = injector.get<CharactersViewModel>();
+    _vmCharacter.charactersState.clearMessage();
+    _vmCharacter.charactersState.clearSuccessEvent();
+
+    _disposeErrorEffect = effect(() {
+      final errorMessage = _vmCharacter.charactersState.message.value;
+
+      if (errorMessage != null && mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+
+          showSnackBar(context, errorMessage, backgroundColor: Colors.red);
+
+          _vmCharacter.charactersState.clearMessage();
+        });
+      }
+    });
+    
+    _disposeSuccessEffect = effect(() {
+      final event = _vmCharacter.charactersState.successEvent.value;
+
+      if (event != null && mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+
+          String message;
+          Color color;
+
+          switch (event) {
+            case CharacterSuccessEvent.created:
+              message = 'Personagem criado com sucesso!';
+              color = Colors.green;
+
+            case CharacterSuccessEvent.updated:
+              message = 'Personagem atualizado com sucesso!';
+              color = Colors.green;
+          }
+
+          showSnackBar(context, message, backgroundColor: color);
+
+          _vmCharacter.charactersState.clearSuccessEvent();
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // _disposeAccountEffect();
+    _disposeSuccessEffect();
+    _disposeErrorEffect();
+
+    _scrollController.dispose();
+
+    _formFields.dispose();
+    super.dispose();
   }
 
   void _cleanFields() {

@@ -22,6 +22,8 @@ enum SortOrder { ascending, descending }
 
 enum LevelFilter { all, below30, below60, upTo70, max80 }
 
+enum CharacterSuccessEvent { created, updated }
+
 extension LevelFilterExtension on LevelFilter {
   String get label {
     switch (this) {
@@ -67,6 +69,9 @@ class CharactersStateViewmodel {
 
   /// Indica se o painel de filtros está expandido ou não
   final isFilterPanelExpanded = signal(false);
+
+  // Evento para confirmação de criação, edição e exclusão de conta, igual ao de conta
+  final successEvent = signal<CharacterSuccessEvent?>(null);
 
   /// Ordenação
   final sortBy = signal<SortBy>(SortBy.name);
@@ -291,4 +296,6 @@ class CharactersStateViewmodel {
     selectedAlignments.value = {};
     levelFilter.value = LevelFilter.all;
   }
+
+  void clearSuccessEvent () => successEvent.value = null;
 }

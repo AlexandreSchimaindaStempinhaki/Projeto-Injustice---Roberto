@@ -49,7 +49,7 @@ class _CharactersViewState extends State<CharactersView> {
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('${character.name} removido')));
+    ).showSnackBar(SnackBar(content: Text('${character.name} removido'), backgroundColor: Colors.red,));
   }
 
   @override
