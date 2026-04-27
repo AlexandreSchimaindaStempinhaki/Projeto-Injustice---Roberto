@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:injustice_app/presentation/views/characters/list_of/widgets/character_select.dart';
 
 import '../../domain/models/character_entity.dart';
@@ -87,6 +88,8 @@ class CharactersStateViewmodel {
 
   late final pageTitle = computed(() => hasCharacter.value ? 'Editar Personagem' : 'Criar Personagem');
   late final labelEditMode = computed(() => hasCharacter.value ? 'EDITAR' : 'CRIAR');
+  late final textEditMode = computed(() => hasCharacter.value ? 'Modifique os dados para editar o personagem' : 'Preencha os dados para criar um novo personagem');
+  late final iconEditMode = computed(() => hasCharacter.value ? Icons.edit : Icons.person_add);
   
 
   /// Filtros

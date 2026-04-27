@@ -251,13 +251,13 @@ class _CharacterCreateViewState extends State<CharacterCreateView> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Icon(
-                  Icons.person_add,
+                  _vmCharacter.charactersState.iconEditMode.value,
                   size: 64,
                   color: Theme.of(context).colorScheme.onSecondary,
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Text(
-                  'Preencha os dados para criar um novo personagem',
+                  _vmCharacter.charactersState.textEditMode.value,
                   style: context.textStyles.bodyMedium?.withColor(
                     Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
