@@ -141,7 +141,7 @@ class CharactersCommandsViewModel {
     await _getAccountCommand.executeWith(());
   }
 
-  /// adiciona personagem e atualiza o estado
+  // adiciona personagem e atualiza o estado
     Future<void> addCharacter(Character character) async {
       state.clearMessage(); // Limpa mensagens anteriores
       await _createCharacterCommand.executeWith((character: character));
